@@ -16,8 +16,10 @@ from datetime import datetime, timedelta
 from functools import wraps
 
 from flask import Flask, request, jsonify, send_from_directory, send_file
+from whitenoise import WhiteNoise
 
-app = Flask(__name__, static_folder='web', static_url_path='')
+app = Flask(__name__, static_folder=None, static_url_path='')
+whitenoise = WhiteNoise(app, root=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'web'), prefix='')
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(ROOT, 'data')
@@ -508,7 +510,10 @@ def api_stats():
     counts = {'towed': 0, 'not_towed': 0, 'rejected': 0, 'on_way': 0, 'could_not': 0, 'deferred': 0}
     for r in records:
         s = r.get('status', 'not_towed')
-        counts[s] = counts.get(s, 0) + 1 if s in counts else counts.__setitem__('not_towed', counts.get('not_towed', 0) + 1) or 0
+        if s in counts:
+            counts[s] += 1
+        else:
+            counts['not_towed'] = counts.get('not_towed', 0) + 1
     sorted_recs = sorted(records, key=lambda x: (x.get('date', ''), x.get('createdAt', '')), reverse=True)
     recent = [{k: str(r.get(k, '')) for k in ['id', 'date', 'vehicle', 'plate', 'claim', 'carrier', 'towing_area', 'status', 'note']} for r in sorted_recs[:8]]
     return jsonify({'ok': True, 'total': len(records), 'counts': counts, 'recent': recent})
