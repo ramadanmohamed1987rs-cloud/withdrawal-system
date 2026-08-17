@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام السحب - سجل سحب المركبات التالفة</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<meta name="theme-color" content="#065f46">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ====================== LOGIN ====================== -->
+<div id="login-view" class="login-view hidden">
+  <div class="login-card">
+    <div class="login-logo">س</div>
+    <h1>نظام السحب</h1>
+    <p class="login-sub">سجل سحب المركبات التالفة - إدخال بيانات بسيط</p>
+    <form id="login-form" autocomplete="on">
+      <label for="loginUser">اسم المستخدم</label>
+      <input id="loginUser" type="text" placeholder="أدخل اسم المستخدم" autocomplete="username">
+      <label for="loginPass">كلمة المرور</label>
+      <input id="loginPass" type="password" placeholder="أدخل كلمة المرور" autocomplete="current-password">
+      <button type="submit" class="btn btn-primary btn-block">تسجيل الدخول</button>
+      <div id="login-error" class="alert alert-error hidden"></div>
+    </form>
+    <p class="login-hint">الدخول الافتراضي: المستخدم <b>admin</b> وكلمة المرور <b>admin123</b> (غيّرها من الإعدادات)</p>
+  </div>
+</div>
+
+<!-- ====================== APP ====================== -->
+<div id="app-view" class="hidden">
+  <header class="topbar">
+    <div class="brand">نظام السحب</div>
+    <nav>
+      <button class="nav-btn active" data-view="dashboard">الرئيسية</button>
+      <button class="nav-btn" data-view="records">العمليات</button>
+      <button class="nav-btn" data-view="settings">الإعدادات</button>
+    </nav>
+    <div class="user-box">
+      <span id="nav-username" class="user-name"></span>
+      <button id="logout-btn" class="btn btn-ghost">خروج</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view">
+      <h2 class="view-title">الرئيسية - بيان المركبات</h2>
+      <div class="cards-grid">
+        <div class="card stat-card">
+          <div class="stat-label">إجمالي العمليات</div>
+          <div class="stat-value" id="d-total">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">المسحوبة</div>
+          <div class="stat-value st-towed" id="d-towed">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">غير المسحوبة</div>
+          <div class="stat-value st-not_towed" id="d-not_towed">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">المؤجلة</div>
+          <div class="stat-value st-deferred" id="d-deferred">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">تعذر السحب</div>
+          <div class="stat-value st-could_not" id="d-could_not">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">المرفوضة</div>
+          <div class="stat-value st-rejected" id="d-rejected">0</div>
+        </div>
+        <div class="card stat-card">
+          <div class="stat-label">بالطريق</div>
+          <div class="stat-value st-on_way" id="d-on_way">0</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>أحدث العمليات</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>التاريخ</th><th>اسم المركبة</th><th>رقم اللوحة</th><th>رقم المطالبة</th><th>اسم الناقل</th><th>منطقة السحب</th><th>الحالة</th><th>ملاحظات</th>
+              </tr>
+            </thead>
+            <tbody id="d-recent"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Records -->
+    <section id="view-records" class="view hidden">
+      <div class="view-head">
+        <h2 class="view-title">العمليات (إدخال البيانات)</h2>
+        <div class="view-tools">
+          <button class="btn" id="btn-export">تصدير إكسل</button>
+          <div class="cols-wrap">
+            <button class="btn" id="btn-cols">الأعمدة</button>
+            <div class="cols-panel hidden" id="cols-panel"></div>
+          </div>
+          <button class="btn btn-primary" id="btn-import">استيراد من إكسل</button>
+          <input type="file" id="import-file" accept=".xlsx" style="display:none">
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>إضافة عملية جديدة</h3>
+        <form id="rec-form" class="form-grid">
+          <div>
+            <label for="rec-date">التاريخ</label>
+            <input id="rec-date" type="date" required>
+          </div>
+          <div>
+            <label for="rec-vehicle">اسم المركبة</label>
+            <input id="rec-vehicle" type="text" placeholder="مثال: تويوتا كامري" required>
+          </div>
+          <div>
+            <label for="rec-plate">رقم اللوحة</label>
+            <input id="rec-plate" type="text" placeholder="مثال: أ ب 123">
+          </div>
+          <div>
+            <label for="rec-claim">رقم المطالبة</label>
+            <input id="rec-claim" type="text" placeholder="مثال: CLAIM-001">
+          </div>
+          <div>
+            <label for="rec-carrier">اسم الناقل</label>
+            <input id="rec-carrier" type="text" placeholder="اسم شركة النقل">
+          </div>
+          <div>
+            <label for="rec-area">منطقة السحب</label>
+            <input id="rec-area" type="text" placeholder="مثال: الدائري الأول">
+          </div>
+          <div>
+            <label for="rec-status">حالة المركبة</label>
+            <select id="rec-status">
+              <option value="not_towed">غير مسحوبة</option>
+              <option value="towed">مسحوبة</option>
+              <option value="on_way">بالطريق</option>
+              <option value="deferred">تأجيل السحب</option>
+              <option value="could_not">تعذر السحب</option>
+              <option value="rejected">مرفوضة</option>
+            </select>
+          </div>
+          <div class="form-wide">
+            <label for="rec-note">ملاحظات</label>
+            <input id="rec-note" type="text" placeholder="تفاصيل إضافية">
+          </div>
+          <div class="form-wide">
+            <label for="rec-file">إضافة ملف (صورة / مستند PDF / Word / Excel)</label>
+            <input id="rec-file" type="file">
+          </div>
+          <div class="form-submit">
+            <button type="submit" class="btn btn-primary">إضافة</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="filter-head">
+          <h3>تصفية العمليات</h3>
+          <div class="filter-counts">
+            <div class="count-box" title="عدد المركبات الظاهرة بعد التصفية">
+              <span class="count-label">إجمالي المركبات</span>
+              <b id="rf-count">0</b>
+            </div>
+            <div class="count-box sel" id="sel-count-box" title="المركبات المحددة">
+              <span class="count-label">المحدد</span>
+              <b id="rf-selected">0</b>
+            </div>
+          </div>
+        </div>
+        <form id="rec-filter" class="form-grid">
+          <div>
+            <label for="rf-from">من تاريخ</label>
+            <input id="rf-from" type="date">
+          </div>
+          <div>
+            <label for="rf-to">إلى تاريخ</label>
+            <input id="rf-to" type="date">
+          </div>
+          <div>
+            <label for="rf-status">الحالة</label>
+            <select id="rf-status">
+              <option value="">كل الحالات</option>
+              <option value="not_towed">غير مسحوبة</option>
+              <option value="towed">مسحوبة</option>
+              <option value="on_way">بالطريق</option>
+              <option value="deferred">تأجيل السحب</option>
+              <option value="could_not">تعذر السحب</option>
+              <option value="rejected">مرفوضة</option>
+            </select>
+          </div>
+          <div>
+            <label for="rf-q">بحث (مركبة / لوحة / مطالبة / ناقل / منطقة)</label>
+            <input id="rf-q" type="text" placeholder="كلمة بحث">
+          </div>
+          <div class="form-submit">
+            <button type="submit" class="btn btn-primary">تصفية</button>
+            <button type="button" class="btn btn-ghost" id="rf-clear">مسح</button>
+            <button type="button" class="btn" id="btn-export-selected">تصدير المحدد</button>
+            <button type="button" class="btn btn-danger" id="btn-del-selected">حذف المحدد</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="table-tools">
+          <label class="check-all-label" title="تحديد كل العمليات الظاهرة">
+            <input type="checkbox" id="check-all">
+            <span>تحديد الكل</span>
+          </label>
+        </div>
+        <div class="table-scroll-top" id="rec-scroll-top"><div class="scroll-spacer" id="rec-scroll-spacer"></div></div>
+        <div class="table-wrap" id="rec-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="th-check"></th><th class="col-date">التاريخ</th><th class="col-vehicle">اسم المركبة</th><th class="col-actions">إجراءات</th><th class="col-plate">رقم اللوحة</th><th class="col-claim">رقم المطالبة</th><th class="col-carrier">اسم الناقل</th><th class="col-area">منطقة السحب</th><th class="col-status">الحالة</th><th class="col-note">ملاحظات</th><th class="col-file">الملف</th>
+              </tr>
+            </thead>
+            <tbody id="rec-list"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="view-settings" class="view hidden">
+      <h2 class="view-title">الإعدادات</h2>
+      <div class="card">
+        <h3>تغيير اسم المستخدم</h3>
+        <form id="user-form" class="form-grid">
+          <div>
+            <label for="u-name">اسم المستخدم الجديد</label>
+            <input id="u-name" type="text" placeholder="اسم جديد" required>
+          </div>
+          <div>
+            <label for="u-pass">كلمة المرور الحالية</label>
+            <input id="u-pass" type="password" autocomplete="current-password" required>
+          </div>
+          <div class="form-submit">
+            <button type="submit" class="btn btn-primary">حفظ اسم المستخدم</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h3>تغيير كلمة المرور</h3>
+        <form id="pass-form" class="form-grid">
+          <div>
+            <label for="p-cur">كلمة المرور الحالية</label>
+            <input id="p-cur" type="password" autocomplete="current-password" required>
+          </div>
+          <div>
+            <label for="p-new">كلمة المرور الجديدة</label>
+            <input id="p-new" type="password" autocomplete="new-password" required>
+          </div>
+          <div>
+            <label for="p-confirm">تأكيد كلمة المرور الجديدة</label>
+            <input id="p-confirm" type="password" autocomplete="new-password" required>
+          </div>
+          <div class="form-submit">
+            <button type="submit" class="btn btn-primary">حفظ كلمة المرور</button>
+          </div>
+        </form>
+        <p class="settings-note">ملاحظة: إذا كانت كلمة المرور الافتراضية (admin123) ما زالت كما هي، يرجى تغييرها فوراً.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ====================== MODALS ====================== -->
+<div id="rec-modal" class="modal hidden">
+  <div class="modal-box">
+    <h3>تعديل عملية</h3>
+    <form id="recm-form">
+      <input type="hidden" id="recm-id">
+      <label for="recm-date">التاريخ</label>
+      <input id="recm-date" type="date" required>
+      <label for="recm-vehicle">اسم المركبة</label>
+      <input id="recm-vehicle" type="text" required>
+      <label for="recm-plate">رقم اللوحة</label>
+      <input id="recm-plate" type="text">
+      <label for="recm-claim">رقم المطالبة</label>
+      <input id="recm-claim" type="text">
+      <label for="recm-carrier">اسم الناقل</label>
+      <input id="recm-carrier" type="text">
+      <label for="recm-area">منطقة السحب</label>
+      <input id="recm-area" type="text">
+      <label for="recm-status">حالة المركبة</label>
+      <select id="recm-status">
+        <option value="not_towed">غير مسحوبة</option>
+        <option value="towed">مسحوبة</option>
+        <option value="on_way">بالطريق</option>
+        <option value="deferred">تأجيل السحب</option>
+        <option value="could_not">تعذر السحب</option>
+        <option value="rejected">مرفوضة</option>
+      </select>
+      <label for="recm-note">ملاحظات</label>
+      <input id="recm-note" type="text">
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-action="close-modal" data-target="rec-modal">إلغاء</button>
+        <button type="submit" class="btn btn-primary">حفظ</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+
+<script src="app.js"></script>
+<script>if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(function () {}); }</script>
+</body>
+</html>
