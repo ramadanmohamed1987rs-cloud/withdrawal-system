@@ -294,16 +294,22 @@ td.actions { white-space: nowrap; }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; align-items: end; }
 .form-wide { grid-column: 1 / -1; }
 label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.form-grid > div { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 10px 12px; }
+.form-grid > div > label { color: var(--primary); font-size: 12px; margin-bottom: 4px; }
+.form-grid > div > input,
+.form-grid > div > select { border: 2px solid #cbd5e1; border-radius: 8px; background: #fff; }
 input, select {
   width: 100%;
-  padding: 9px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  padding: 10px 14px;
+  border: 2px solid #94a3b8;
+  border-radius: 10px;
   font-size: 14px;
   background: #fff;
   font-family: inherit;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.06);
+  transition: border-color .15s, box-shadow .15s;
 }
-input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: 1px; border-color: transparent; }
+input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,115,232,.15); }
 .form-submit { display: flex; gap: 8px; }
 .settings-note { margin-top: 14px; font-size: 13px; color: var(--muted); }
 
@@ -330,7 +336,8 @@ input:focus, select:focus { outline: 2px solid var(--primary); outline-offset: 1
 }
 .modal-box h3 { margin-bottom: 16px; }
 .modal-box label { margin-top: 12px; }
-.modal-box input, .modal-box select { margin-top: 4px; }
+.modal-box input, .modal-box select { margin-top: 4px; border: 2px solid #94a3b8; border-radius: 10px; padding: 10px 14px; }
+.modal-box input:focus, .modal-box select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,115,232,.15); outline: none; }
 .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
 /* ---------- Toast ---------- */

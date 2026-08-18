@@ -159,18 +159,14 @@ function recRow(r) {
   const tr = document.createElement('tr');
   tr.innerHTML =
     '<td class="td-check"><input type="checkbox" class="rec-check" data-id="' + esc(r.id) + '"></td>' +
-    '<td class="col-date">' + esc(fmtDate(r.date)) + '</td>' +
     '<td class="col-vehicle">' + esc(r.vehicle) + '</td>' +
+    '<td class="col-plate">' + esc(r.plate) + '</td>' +
+    '<td class="col-status">' + statusBadge(r.status) + '</td>' +
+    '<td class="col-note">' + esc(r.note) + '</td>' +
     '<td class="col-actions actions">' +
       '<button class="btn btn-mini" data-action="edit-rec" data-id="' + esc(r.id) + '">تعديل</button> ' +
       '<button class="btn btn-mini btn-danger" data-action="del-rec" data-id="' + esc(r.id) + '">حذف</button>' +
     '</td>' +
-    '<td class="col-plate">' + esc(r.plate) + '</td>' +
-    '<td class="col-claim">' + esc(r.claim) + '</td>' +
-    '<td class="col-carrier">' + esc(r.carrier) + '</td>' +
-    '<td class="col-area">' + esc(r.towing_area) + '</td>' +
-    '<td class="col-status">' + statusBadge(r.status) + '</td>' +
-    '<td class="col-note">' + esc(r.note) + '</td>' +
     '<td class="col-file actions">' + attachCell(r) + '</td>';
   return tr;
 }
@@ -199,17 +195,13 @@ async function loadDashboard() {
     const tbody = $('d-recent');
     tbody.innerHTML = '';
     if (!d.recent || !d.recent.length) {
-      tbody.appendChild(emptyRow(8, 'لا توجد عمليات بعد'));
+      tbody.appendChild(emptyRow(4, 'لا توجد عمليات بعد'));
     } else {
       d.recent.forEach((r) => {
         const tr = document.createElement('tr');
         tr.innerHTML =
-          '<td>' + esc(fmtDate(r.date)) + '</td>' +
           '<td>' + esc(r.vehicle) + '</td>' +
           '<td>' + esc(r.plate) + '</td>' +
-          '<td>' + esc(r.claim) + '</td>' +
-          '<td>' + esc(r.carrier) + '</td>' +
-          '<td>' + esc(r.towing_area) + '</td>' +
           '<td>' + statusBadge(r.status) + '</td>' +
           '<td>' + esc(r.note) + '</td>';
         tbody.appendChild(tr);
@@ -242,7 +234,7 @@ function renderRecords() {
   $('sel-count-box').classList.remove('on');
   $('check-all').checked = false;
   if (!currentRecords.length) {
-    tbody.appendChild(emptyRow(11, 'لا توجد عمليات'));
+    tbody.appendChild(emptyRow(7, 'لا توجد عمليات'));
     syncTopScroll();
     return;
   }
@@ -264,15 +256,11 @@ function updateSelectedCount() {
 
 // ---------- Column visibility ----------
 const COLUMNS = [
-  { key: 'date',    label: 'التاريخ' },
   { key: 'vehicle', label: 'اسم المركبة' },
-  { key: 'actions', label: 'إجراءات (تعديل / حذف)' },
   { key: 'plate',   label: 'رقم اللوحة' },
-  { key: 'claim',   label: 'رقم المطالبة' },
-  { key: 'carrier', label: 'اسم الناقل' },
-  { key: 'area',    label: 'منطقة السحب' },
   { key: 'status',  label: 'الحالة' },
   { key: 'note',    label: 'ملاحظات' },
+  { key: 'actions', label: 'إجراءات (تعديل / حذف)' },
   { key: 'file',    label: 'الملف' },
 ];
 
