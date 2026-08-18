@@ -162,6 +162,10 @@ function recRow(r) {
     '<td class="col-vehicle">' + esc(r.vehicle) + '</td>' +
     '<td class="col-plate">' + esc(r.plate) + '</td>' +
     '<td class="col-status">' + statusBadge(r.status) + '</td>' +
+    '<td class="col-date">' + esc(fmtDate(r.date)) + '</td>' +
+    '<td class="col-claim">' + esc(r.claim) + '</td>' +
+    '<td class="col-carrier">' + esc(r.carrier) + '</td>' +
+    '<td class="col-area">' + esc(r.towing_area) + '</td>' +
     '<td class="col-note">' + esc(r.note) + '</td>' +
     '<td class="col-actions actions">' +
       '<button class="btn btn-mini" data-action="edit-rec" data-id="' + esc(r.id) + '">تعديل</button> ' +
@@ -234,7 +238,7 @@ function renderRecords() {
   $('sel-count-box').classList.remove('on');
   $('check-all').checked = false;
   if (!currentRecords.length) {
-    tbody.appendChild(emptyRow(7, 'لا توجد عمليات'));
+    tbody.appendChild(emptyRow(11, 'لا توجد عمليات'));
     syncTopScroll();
     return;
   }
@@ -259,6 +263,10 @@ const COLUMNS = [
   { key: 'vehicle', label: 'اسم المركبة' },
   { key: 'plate',   label: 'رقم اللوحة' },
   { key: 'status',  label: 'الحالة' },
+  { key: 'date',    label: 'التاريخ' },
+  { key: 'claim',   label: 'رقم المطالبة' },
+  { key: 'carrier', label: 'اسم الناقل' },
+  { key: 'area',    label: 'منطقة السحب' },
   { key: 'note',    label: 'ملاحظات' },
   { key: 'actions', label: 'إجراءات (تعديل / حذف)' },
   { key: 'file',    label: 'الملف' },
